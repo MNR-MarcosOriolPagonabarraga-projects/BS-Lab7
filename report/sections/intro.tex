@@ -1,0 +1,58 @@
+
+\begin{center}
+    \LARGE \textbf{ADAPTIVE FILTERING WITH LMS ALGORITHM}
+\end{center}
+
+\section{Introduction}
+
+The accurate recording and analysis of bioelectric signals, 
+such as the Electromyogram (EMG), are \textbf{fundamental to 
+physiological monitoring and clinical diagnostics}. 
+However, these signals are frequently contaminated by 
+significant non-biological interference, making accurate 
+analysis challenging. Effective filtering 
+techniques are therefore \textbf{essential to isolate the signal} 
+of interest from unwanted noise.
+
+One of the most pervasive sources of interference in EMG 
+recordings is the \textbf{power line artifact}, 
+typically oscillating at 50 Hz or 60 Hz. Since the 
+power line frequency falls within the operational bandwidth of 
+the EMG signal, its removal is critical, yet challenging, 
+as traditional \textbf{linear time-invariant (LTI) filters} 
+can inadvertently remove desired biological signal components 
+alongside the noise.
+
+This document explores the application of \textbf{Adaptive 
+Filtering} using the \textbf{Least Mean Squares (LMS) algorithm} 
+ as a dynamic solution to interference cancellation. 
+Unlike fixed-coefficient LTI filters (such as the Butterworth 
+Notch filter), the LMS algorithm adjusts its 
+filter weights iteratively to track and minimize the 
+interference component in the primary signal.
+
+The work is structured in two main parts:
+\begin{enumerate}
+    \item \textbf{Filtering Power Line Interference}: 
+    We apply the LMS algorithm to remove 60 Hz power line 
+    noise from EMG signals. The performance is 
+    evaluated using the \textbf{Energy Spectral Density (ESD)} 
+    and compared against a fixed-coefficient LTI 
+    filter to assess the trade-offs in noise 
+    reduction and signal preservation.
+    \item \textbf{Filtering ECG Interference in EMG Signals} : 
+    We address the more complex issue of 
+    removing cardiac activity (ECG) artifacts from EMG 
+    signals. Since a separate ECG reference 
+    signal is not available, we synthesize the required 
+    reference by extracting an \textbf{"average ECG beat"} 
+    and using cross-correlation to generate 
+    an impulse train.
+\end{enumerate}
+
+Ultimately, this study aims to analyze the \textbf{convenience} 
+and performance of adaptive filtering in handling both simple 
+(sinusoidal, 60 Hz) and complex (morphological, 
+ECG) interference components in biomedical signals.
+
+\end{document}

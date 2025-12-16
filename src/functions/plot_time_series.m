@@ -1,6 +1,5 @@
 function ax_handle = plot_time_series(array, fs)
     time_vector = (1:length(array)) / fs;
-    disp(time_vector(end));
     
     plot(time_vector, array);
     ax_handle = gca;
