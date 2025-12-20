@@ -1,0 +1,37 @@
+\relax 
+\providecommand\babel@aux[2]{}
+\@nameuse{bbl@beforestart}
+\babel@aux{english}{}
+\@input{sections/intro.aux}
+\@writefile{toc}{\contentsline {section}{\numberline {2}filtering ECG Interference from EMG Signals}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Signal Visualization}{2}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Raw EMG signals recorded during Low Effort (top) and High Effort (bottom). The periodic spikes correspond to the ECG interference.}}{2}{}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:raw_emg}{{1}{2}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Manual Beat Selection}{2}{}\protected@file@percent }
+\newlabel{lst:manual_indices}{{1}{2}{}{}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}{\ignorespaces Manual selection of QRS peak indices}}{2}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Generation of Average ECG Beat Template}{3}{}\protected@file@percent }
+\newlabel{lst:avg_beat}{{2}{3}{}{}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {2}{\ignorespaces Extraction of the average ECG beat}}{3}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Average ECG beat template derived from the 15 manually selected indices. The P, QRS, and T waves are clearly visible.}}{3}{}\protected@file@percent }
+\newlabel{fig:avg_beat}{{2}{3}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Adaptive Filtering of Low-Effort EMG}{4}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.1}Reference Signal Generation and Alignment}{4}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The reference impulses (red) start at the onset of the cardiac cycle, enabling causal reconstruction of the artifact.}}{4}{}\protected@file@percent }
+\newlabel{fig:alignment}{{3}{4}{}{}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}LMS Filtering Results}{4}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Filtered Low-Effort EMG signals. $\mu =0.1$ (bottom) removes the spikes and keeps the signal with good resolution.}}{5}{}\protected@file@percent }
+\newlabel{fig:low_effort_res}{{4}{5}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Estimated artifacts $y(n)$. It can be observed that the best results are achieved with the parameter $\mu =0.1$ (below).}}{5}{}\protected@file@percent }
+\newlabel{fig:low_effort_art}{{5}{5}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Adaptive Filtering of High-Effort EMG}{5}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Filtered High-Effort EMG. The adaptive filter remains robust even in the presence of high-energy muscle contraction.}}{6}{}\protected@file@percent }
+\newlabel{fig:high_effort_res}{{6}{6}{}{}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Convergence Improvement}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.1}The Initialization Problem}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.2}Smart Initialization with Template}{6}{}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.6.3}Results Analysis}{6}{}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Comparison of filter convergence during the first second. \textbf  {Top:} Null Initialization. \textbf  {Bottom:} Smart Initialization. Due to the high adaptation speed ($\mu =0.1$) and natural amplitude variance of the first beat, the visual performance is nearly identical in both cases, with no clear advantage observed for the template-based initialization in this specific scenario.}}{7}{}\protected@file@percent }
+\newlabel{fig:conv}{{7}{7}{}{}{}}
+\gdef \@abspage@last{8}

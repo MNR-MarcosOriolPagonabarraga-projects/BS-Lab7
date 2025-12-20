@@ -1,0 +1,42 @@
+\subsection{Convergence Improvement}
+
+\subsubsection{The Initialization Problem}
+Standard adaptive filters (LMS) are typically initialized with a weight vector of zeros ($w[0] = 0$). This assumes 
+no prior knowledge of the interference signal. Theoretically, the filter requires a "learning period" (convergence time) 
+to adjust its weights, during which the interference is not removed.
+
+\subsubsection{Smart Initialization with Template}
+To eliminate this potential delay, we proposed a "Smart Initialization" strategy. Using the computed \texttt{avg\_beat} 
+template (which represents the optimal impulse response), we initialized the filter weights: 
+$$ w_{initial} = \text{avg\_beat} $$
+By seeding the LMS algorithm with this prior knowledge, the filter starts in a state closer to the optimal solution.
+
+\subsubsection{Results Analysis}
+Figure \ref{fig:conv} compares the filtered output of both methods during the first second of recording, using a step 
+size of $\mu=0.1$.
+
+\begin{itemize}
+    \item \textbf{Observation:} Contrary to the theoretical expectation of a distinct "learning curve," both the Null 
+    and Smart initializations produce very similar results. The first QRS complex is attenuated in both cases, with no 
+    significant visual difference in the residual artifact.
+    
+    \item \textbf{Explanation of Fast Convergence:} The chosen step size ($\mu=0.1$) is sufficiently large to allow the 
+    LMS algorithm to adapt extremely rapidly. In the Null case, the filter weights adjust from zero to the required magnitude 
+    within the duration of the first QRS complex itself (approx. 50-100 ms). This ultra-fast adaptation renders the 
+    initialization phase negligible for visual inspection.
+    
+    \item \textbf{Template Mismatch:} Furthermore, the Smart Initialization relies on an \textit{average} beat template. 
+    Since the specific amplitude and shape of the very first heartbeat in the raw signal naturally deviate from this average, 
+    the "Smart" filter still produces a residual error (due to imperfect subtraction). This residual is comparable in magnitude 
+    to the initial error of the rapidly adapting Null filter, leading to the observed similarity.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{img/convergence_comparison_filtered.png}
+    \caption{Comparison of filter convergence during the first second. \textbf{Top:} Null Initialization. \textbf{Bottom:} 
+    Smart Initialization. Due to the high adaptation speed ($\mu=0.1$) and natural amplitude variance of the first beat, the 
+    visual performance is nearly identical in both cases, with no clear advantage observed for the template-based initialization 
+    in this specific scenario.}
+    \label{fig:conv}
+\end{figure}

@@ -1,78 +1,35 @@
 \subsection{Generation of Average ECG Beat Template}
+Using the manually selected indices, we extracted segments of the raw EMG signal to construct an average beat. 
+A window of 600 samples was defined around each peak: 199 samples before the peak and 400 samples after. 
+This window length (600 ms) is sufficient to capture the P-wave, QRS complex, and T-wave.
 
-To perform adaptive filtering, a reference signal related to the noise source is required. Since a 
-clean ECG signal was not recorded, we must derive a template for the ECG artifact directly from the 
-noisy EMG signal. This process uses the low-effort EMG signal (\texttt{emg1}), where the ECG beats 
-are more prominent.
-
-First, a 6th-order low-pass Butterworth filter with a cutoff frequency of 70 Hz is applied to 
-\texttt{emg1}. This step reduces high-frequency muscle noise and makes the QRS complexes of the 
-ECG artifact easier to detect. A peak detection algorithm is then used on the filtered signal to 
-identify the temporal locations of these QRS complexes, as shown in Figure \ref{fig:lpf_emg1_peaks}.
-
-Once the peaks are located, a 600ms window (199ms before the peak and 400ms after) is extracted from 
-the original, unfiltered \texttt{emg1} signal for each detected beat. By averaging all these extracted 
-segments, we obtain a clean, representative "average ECG beat" template. This template, shown in Figure 
-\ref{fig:average_ecg_beat}, captures the characteristic shape of the ECG artifact present in the EMG 
-recording.
-
-To extract the average ECG beat, the following MATLAB code snippet was used:
-\vspace{0.5cm}
-
-\begin{lstlisting}[caption={MATLAB code to generate the average ECG beat template.}, label={lst:average_ecg_beat}]+
-function [avg_beat, peak_locs, filtered_signal] = extract_average_beat(signal, fs, lpf_cutoff, peak_find_params, window_pre, window_post)
-    
-    filtered_signal = butter_lowpass_filter(signal, lpf_cutoff, fs, 6);
-
-    [~, peak_locs] = findpeaks(filtered_signal, ...
-        'MinPeakHeight', peak_find_params.min_peak_height, ...
-        'MinPeakDistance', peak_find_params.min_peak_distance);
+\begin{lstlisting}[language=Matlab, caption={Extraction of the average ECG beat}, label={lst:avg_beat}]
+function avg_beat = extract_average_beat(signal, peak_locs, window_pre, window_post)
 
     num_peaks = length(peak_locs);
-    beat_segments = zeros(num_peaks, window_pre + window_post + 1);
-
-    valid_peaks = 0;
+    beat_segments = [];
+    
     for i = 1:num_peaks
         start_idx = peak_locs(i) - window_pre;
         end_idx = peak_locs(i) + window_post;
         
         if start_idx > 0 && end_idx <= length(signal)
-            valid_peaks = valid_peaks + 1;
-            beat_segments(valid_peaks, :) = signal(start_idx:end_idx);
+            segment = signal(start_idx:end_idx);
+            beat_segments = [beat_segments; segment(:)];
         end
     end
     
-    beat_segments = beat_segments(1:valid_peaks, :);
     avg_beat = mean(beat_segments, 1);
 end
 \end{lstlisting}
 
-This function involved applying the following processes:
-\begin{itemize}
-    \item \textbf{Low-pass filtering:} The input signal is filtered using a Butterworth low-pass filter to 
-    attenuate high-frequency noise.
-    \item \textbf{Peak detection:} The \texttt{findpeaks} function identifies the locations of QRS complexes 
-    based on specified minimum peak height and distance parameters.
-    \item \textbf{Segment extraction:} For each detected peak, a segment of the original signal is extracted, 
-    spanning a defined window before and after the peak.
-    \item \textbf{Averaging:} All extracted segments are averaged to create the final ECG beat template.
-\end{itemize}
+The resulting template, shown in Figure \ref{fig:avg_beat}, displays a distinct cardiac morphology with 
+minimal high-frequency noise, validating the manual selection strategy.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{img/lpf_emg1_peaks.png}
-    \caption{Low-pass filtered low-effort EMG signal with detected QRS peaks.}
-    \label{fig:lpf_emg1_peaks}
+    \includegraphics[width=0.8\textwidth]{img/average_ecg_beat.png}
+    \caption{Average ECG beat template derived from the 15 manually selected indices. The P, QRS, and T 
+    waves are clearly visible.}
+    \label{fig:avg_beat}
 \end{figure}
-
-As it can be seen, the function correctly identifies the QRS peaks.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.7\textwidth]{img/average_ecg_beat.png}
-    \caption{Average ECG beat template obtained from the low-effort EMG signal.}
-    \label{fig:average_ecg_beat}
-\end{figure}
-
-Then, with that samples of the ECG peaks, the window of each beat is extracted and averaged to
-form the template shown in Figure \ref{fig:average_ecg_beat}.

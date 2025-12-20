@@ -1,22 +1,16 @@
-\subsection{Signal Visualization and Manual Beat Selection}
-The dataset \texttt{adapecg.mat} was loaded, containing electromyography (EMG) signals recorded from 
-the sternomastoid muscle during five respiratory cycles at two different inspiratory effort levels: 
-low and high.
+\subsection{Signal Visualization}
+The dataset \texttt{adapecg.mat} was loaded, containing electromyography (EMG) signals recorded from the 
+sternomastoid muscle during five respiratory cycles at two different inspiratory effort levels: low and high.
 
-As shown in Figure \ref{fig:raw_emg}, the raw EMG signals exhibit significant cardiac interference. 
-This is characterized by sharp, periodic QRS complexes contaminating the physiological signal. In the 
-"High Effort" scenario (bottom plot), the EMG amplitude increases significantly during inspiratory bursts,
- partially masking the ECG artifacts.
-
-To facilitate the extraction of a clean cardiac template, the EMG signal (Low Effort) was first filtered 
-using a $6^{th}$ order Butterworth low-pass filter with a cutoff frequency of 70 Hz. 
-Following the laboratory guidelines, 15 QRS peaks were manually selected during "quiet" expiratory phases 
-to avoid high-amplitude EMG noise associated with inspiration. The manually identified indices 
-were: $1823, 2459, \dots, 17035$.
+The raw signals are visualized in Figure \ref{fig:raw_emg}. Both signals exhibit significant cardiac 
+interference, characterized by sharp, periodic QRS complexes. In the "High Effort" scenario, the 
+amplitude of the EMG activity increases drastically during inspiratory bursts, partially masking 
+the ECG artifacts.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{img/raw_emg_signals.png}
-    \caption{Raw EMG signals recorded during Low Effort (top) and High Effort (bottom). Note the periodic ECG artifacts visible throughout the recordings.}
+    \caption{Raw EMG signals recorded during Low Effort (top) and High Effort (bottom). The periodic spikes correspond 
+    to the ECG interference.}
     \label{fig:raw_emg}
 \end{figure}

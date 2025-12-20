@@ -1,10 +1,14 @@
 \subsection{Manual Beat Selection}
-Using the previous signal visualization, we can manually select the ECG beats to create a template for filtering.
-Looking at the non inspiratory parts of the EMG signal, 15 ECG artifacts were identified and their positions recorded.
+To derive a clean template of the ECG interference, it is crucial to select beats that are not contaminated by the 
+high-amplitude EMG activity occurring during inspiration. Following the laboratory guidelines, the Low Effort EMG 
+signal was filtered (Butterworth, 6th order, 70 Hz cutoff) to facilitate visualization.
 
-The indexes of the selected beats are as follows:
-\begin{lstlisting}[caption={Indexes of manually selected ECG beats}, label={lst:manual_beat_indexes}]
-manual_peak_locs = [1823, 2459, 3083, 3727, 5600, 
-                    6227, 6865, 7498, 10643, 11284, 
+We manually identified 15 QRS complexes during the "quiet" expiratory phases. The sample indices of these 
+peaks were recorded to serve as synchronization points for template extraction.
+
+\begin{lstlisting}[language=Matlab, caption={Manual selection of QRS peak indices}, label={lst:manual_indices}]
+% Manually selected indices during expiratory phases
+manual_peak_locs = [1823, 2459, 3083, 3727, 5600, ...
+                    6227, 6865, 7498, 10643, 11284, ...
                     11933, 12571, 13211, 15740, 17035];
 \end{lstlisting}

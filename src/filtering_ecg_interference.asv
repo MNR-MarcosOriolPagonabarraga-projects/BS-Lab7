@@ -135,14 +135,14 @@ saveas(fig_conv, 'report/img/convergence_comparison_artifacts.png');
 
 fig_filt_compare = figure;
 subplot(2,1,1);
-plot_time_series(filt_null(1:1000), fs_emg);
+plot_time_series(filt_null(1:2000), fs_emg);
 title('Filtered EMG (Null Init)');
 ylabel('Amplitude (V)'); 
 grid on;
 ylim([-1e-3 1e-3]);
 
 subplot(2,1,2);
-plot_time_series(filt_smart(1:1000), fs_emg);
+plot_time_series(filt_smart(1:2000), fs_emg);
 title('Filtered EMG (Smart Init)');
 ylabel('Amplitude (V)'); 
 xlabel('Time (s)'); 
@@ -152,3 +152,27 @@ ylim([-1e-3 1e-3]);
 saveas(fig_filt_compare, 'report/img/convergence_comparison_filtered.png');
 
 
+t_zoom = time_vec(time_vec < 1.5); 
+idx_zoom = 1:length(t_zoom);
+
+fig_proof = figure('Position', [100, 100, 1000, 600]);
+
+% Plot 1: The Null Initialization Failure
+subplot(2,1,1);
+plot(t_zoom, adapecg.emg1(idx_zoom), 'Color', [0.7 0.7 0.7], 'LineWidth', 2); hold on; % Grey = Raw
+plot(t_zoom, filt_null(idx_zoom), 'r-', 'LineWidth', 1); % Red = Null Filtered
+legend('Raw EMG', 'Filtered (Null Init)', 'Location', 'Best');
+title('Null Initialization: First beat is NOT filtered (Red overlaps Grey)');
+ylabel('Amplitude (V)'); grid on;
+xlim([0 1.5]);
+
+% Plot 2: The Smart Initialization Success
+subplot(2,1,2);
+plot(t_zoom, adapecg.emg1(idx_zoom), 'Color', [0.7 0.7 0.7], 'LineWidth', 2); hold on; % Grey = Raw
+plot(t_zoom, filt_smart(idx_zoom), 'b-', 'LineWidth', 1); % Blue = Smart Filtered
+legend('Raw EMG', 'Filtered (Smart Init)', 'Location', 'Best');
+title('Smart Initialization: First beat IS attenuated (Blue is smaller than Grey)');
+xlabel('Time (s)'); ylabel('Amplitude (V)'); grid on;
+xlim([0 1.5]);
+
+saveas(fig_proof, 'report/img/convergence_proof_zoom.png');
