@@ -1,0 +1,42 @@
+\subsection{Adaptive Filtering of High-Effort EMG}
+
+\subsubsection{Processing the High-Effort Signal}
+The same adaptive filtering methodology is applied to the high-effort EMG signal (\texttt{emg2}). However, detecting the QRS complexes in the high-effort signal is more challenging due to the significantly higher amplitude of the muscle activity, which can mask the ECG peaks.
+
+To address this, the \texttt{emg2} signal was first pre-processed with a 6th-order Butterworth low-pass filter (cutoff at 70 Hz) to attenuate the high-frequency EMG components and reveal the underlying ECG artifacts. The peaks detected from this pre-processed signal were then used to generate the reference impulse train for the LMS filter.
+
+Figure \ref{fig:emg2_with_impulses} shows the high-effort EMG signal with the corresponding reference impulses.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/emg2_with_impulses.png}
+    \caption{High-effort EMG signal with reference impulses derived from the pre-processed signal.}
+    \label{fig:emg2_with_impulses}
+\end{figure}
+
+\subsubsection{Results Comparison}
+The LMS filter was run with the same parameters as the low-effort case: filter order $N=600$ and step sizes $\mu \in \{0.001, 0.01, 0.1\}$.
+
+Figure \ref{fig:lms_filtered_emg2} presents the filtered high-effort EMG signals, and Figure \ref{fig:ecg_artifact_emg2} displays the estimated ECG artifacts.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/lms_filtered_emg2_all_mu.png}
+    \caption{LMS filtered high-effort EMG signals for different step sizes $\mu$.}
+    \label{fig:lms_filtered_emg2}
+\end{figure}
+
+\textbf{Results and Discussion:}
+% TODO: Analyze the performance in the high-effort scenario. 
+% Is the ECG effectively removed despite the overlapping spectral content and higher noise?
+% Compare the optimal mu here vs the low-effort case.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/ecg_artifact_emg2_all_mu.png}
+    \caption{Estimated ECG artifacts from the high-effort signal for different step sizes $\mu$.}
+    \label{fig:ecg_artifact_emg2}
+\end{figure}
+
+\textbf{Comments on Artifact Estimation:}
+% TODO: efficient noise removal or signal distortion observed?

@@ -1,7 +1,8 @@
 clear; clc; close all;
 
-%% Load data and plot for High and Low effort scenarios
+%% Load Data
 data_path = 'data/adapecg.mat';
+
 adapecg = load(data_path);
 fs_emg = 1000;
 
@@ -14,107 +15,113 @@ ax = plot_time_series(adapecg.emg2, fs_emg);
 title(ax, 'Raw EMG Signal - High Effort');
 saveas(fig, 'report/img/raw_emg_signals.png');
 
+%% Manual Beat Selection
+emg1_lpf = butter_lowpass_filter(adapecg.emg1, 70, fs_emg, 6);
+
+fig_select = figure;
+plot(emg1_lpf);
+title('Low-Pass Filtered EMG (Low Effort)');
+
+manual_peak_locs = [1823, 2459, 3083, 3727, 5600, 6227, 6865, 7498, 10643, 11284, 11933, 12571, 13211, 15740, 17035];
+
 %% Generate Average ECG Beat Template
-peak_find_params.min_peak_height = 0.2e-3;
-peak_find_params.min_peak_distance = 500;
 window_pre = 199;
 window_post = 400;
 
-[avg_beat, peak_locs, emg1_lpf] = extract_average_beat(adapecg.emg1, fs_emg, 70, peak_find_params, window_pre, window_post);
+avg_beat = extract_average_beat(adapecg.emg1, manual_peak_locs, window_pre, window_post);
 
-fig = figure;
-plot_time_series(emg1_lpf, fs_emg);
-hold on;
-plot(peak_locs/fs_emg, emg1_lpf(peak_locs), 'r*', 'MarkerSize', 8);
-title('Low-Pass Filtered Low-Effort EMG with Detected QRS Peaks');
-legend('Filtered EMG', 'Detected Peaks');
-saveas(fig, 'report/img/lpf_emg1_peaks.png');
-
-fig = figure;
-plot(((1:length(avg_beat)) - window_pre - 1) / fs_emg * 1000, avg_beat);
+fig_temp = figure;
+time_template = ((1:length(avg_beat)) - window_pre - 1) / fs_emg * 1000;
+plot(time_template, avg_beat, 'LineWidth', 1.5);
 title('Average ECG Beat Template');
-xlabel('Time (ms)');
-ylabel('Amplitude (V)');
-grid on;
-saveas(fig, 'report/img/average_ecg_beat.png');
+xlabel('Time (ms)'); ylabel('Amplitude (V)'); grid on;
+saveas(fig_temp, 'report/img/average_ecg_beat.png');
 
-%% Adaptive Filtering for Low-Effort EMG
-ref_impulses_low = generate_reference_impulses(adapecg.emg1, avg_beat, fs_emg);
+%%  Adaptive Filtering Setup
+filter_order = length(avg_beat); 
+ref_impulses_low = generate_reference_impulses(emg1_lpf, avg_beat, fs_emg);
 
-fig = figure;
-plot_time_series(adapecg.emg1, fs_emg);
+samples_view = 2000:10000;
+emg_segment = adapecg.emg1(samples_view);
+impulse_segment = ref_impulses_low(samples_view);
+
+t_view = samples_view / fs_emg;
+
+impulse_indices = find(impulse_segment == 1);
+t_impulses = t_view(impulse_indices);
+y_impulses = emg_segment(impulse_indices);
+
+fig_align = figure;
+plot(t_view, emg_segment);
 hold on;
-stem(find(ref_impulses_low)/fs_emg, 0.5e-3 * ones(size(find(ref_impulses_low))), 'r');
-title('Low-Effort EMG with Reference Impulses');
-legend('EMG', 'Reference Impulses');
-ylim([-1e-3, 1e-3]);
-saveas(fig, 'report/img/emg1_with_impulses.png');
+plot(t_impulses, y_impulses, 'rv', 'MarkerFaceColor', 'r', 'MarkerSize', 8);
+title('EMG Signal and Reference Impulse Alignment');
+xlabel('Time (s)');
+ylabel('Amplitude');
+legend('EMG', 'Impulse Location');
+grid on;
 
+saveas(fig_align, 'report/img/impulse_alignment_check.png');
+
+%% Process Low Effort EMG (Loop over Mu)
 mu_values = [1e-3, 1e-2, 1e-1];
-filter_order = 600;
 
-% Grouped plots for filtered EMG (Low Effort)
-fig_filtered_low = figure;
-subplot(length(mu_values) + 1, 1, 1);
-plot_time_series(adapecg.emg1, fs_emg);
-title('Original Low-Effort EMG');
+fig_filt_low = figure;
+sgtitle('Filtered Low Effort EMG');
+subplot(length(mu_values)+1, 1, 1);
+plot_time_series(adapecg.emg1, fs_emg); title('Original');
 
-% Grouped plots for artifacts (Low Effort)
-fig_artifacts_low = figure;
+fig_art_low = figure;
+sgtitle('Estimated Artifacts (Low Effort)');
 
 for i = 1:length(mu_values)
     mu = mu_values(i);
-    [filtered_emg_low, ecg_estimate_low] = lms_filter(adapecg.emg1, ref_impulses_low, filter_order, mu);
+    [filt_sig, art_sig] = lms_filter(adapecg.emg1, ref_impulses_low, filter_order, mu, []);
     
-    figure(fig_filtered_low);
-    subplot(length(mu_values) + 1, 1, i + 1);
-    plot_time_series(filtered_emg_low, fs_emg);
-    title(['Filtered Low-Effort EMG (\mu = ' num2str(mu) ')']);
+    figure(fig_filt_low);
+    subplot(length(mu_values)+1, 1, i+1);
+    plot_time_series(filt_sig, fs_emg);
+    title(['\mu = ' num2str(mu)]);
     
-    figure(fig_artifacts_low);
+    figure(fig_art_low);
     subplot(length(mu_values), 1, i);
-    plot_time_series(ecg_estimate_low, fs_emg);
-    title(['Estimated ECG Artifact (\mu = ' num2str(mu) ')']);
+    plot_time_series(art_sig, fs_emg);
+    title(['\mu = ' num2str(mu)]);
 end
-saveas(fig_filtered_low, 'report/img/lms_filtered_emg1_all_mu.png');
-saveas(fig_artifacts_low, 'report/img/ecg_artifact_emg1_all_mu.png');
+saveas(fig_filt_low, 'report/img/lms_low_effort_results.png');
+saveas(fig_art_low, 'report/img/lms_low_effort_artifacts.png');
 
+%% Process High Effort EMG
 
-%% Adaptive Filtering for High-Effort EMG
 emg2_lpf = butter_lowpass_filter(adapecg.emg2, 70, fs_emg, 6);
 ref_impulses_high = generate_reference_impulses(emg2_lpf, avg_beat, fs_emg);
 
-fig = figure;
-plot_time_series(adapecg.emg2, fs_emg);
-hold on;
-stem(find(ref_impulses_high)/fs_emg, 2e-3 * ones(size(find(ref_impulses_high))), 'r');
-title('High-Effort EMG with Reference Impulses');
-legend('EMG', 'Reference Impulses');
-ylim([-4e-3, 4e-3]);
-saveas(fig, 'report/img/emg2_with_impulses.png');
-
-% Grouped plots for filtered EMG (High Effort)
-fig_filtered_high = figure;
-subplot(length(mu_values) + 1, 1, 1);
-plot_time_series(adapecg.emg2, fs_emg);
-title('Original High-Effort EMG');
-
-% Grouped plots for artifacts (High Effort)
-fig_artifacts_high = figure;
+fig_filt_high = figure;
+sgtitle('Filtered High Effort EMG');
+subplot(length(mu_values)+1, 1, 1);
+plot_time_series(adapecg.emg2, fs_emg); title('Original');
 
 for i = 1:length(mu_values)
     mu = mu_values(i);
-    [filtered_emg_high, ecg_estimate_high] = lms_filter(adapecg.emg2, ref_impulses_high, filter_order, mu);
+    [filt_sig, ~] = lms_filter(adapecg.emg2, ref_impulses_high, filter_order, mu, []);
     
-    figure(fig_filtered_high);
-    subplot(length(mu_values) + 1, 1, i + 1);
-    plot_time_series(filtered_emg_high, fs_emg);
-    title(['Filtered High-Effort EMG (\mu = ' num2str(mu) ')']);
-    
-    figure(fig_artifacts_high);
-    subplot(length(mu_values), 1, i);
-    plot_time_series(ecg_estimate_high, fs_emg);
-    title(['Estimated ECG Artifact (\mu = ' num2str(mu) ')']);
+    figure(fig_filt_high);
+    subplot(length(mu_values)+1, 1, i+1);
+    plot_time_series(filt_sig, fs_emg);
+    title(['\mu = ' num2str(mu)]);
 end
-saveas(fig_filtered_high, 'report/img/lms_filtered_emg2_all_mu.png');
-saveas(fig_artifacts_high, 'report/img/ecg_artifact_emg2_all_mu.png');
+saveas(fig_filt_high, 'report/img/lms_high_effort_results.png');
+
+%% 7. Convergence Improvement
+target_mu = 1e-2;
+
+[filt_null, art_null] = lms_filter(adapecg.emg1, ref_impulses_low, filter_order, target_mu, []);
+[filt_smart, art_smart] = lms_filter(adapecg.emg1, ref_impulses_low, filter_order, target_mu, avg_beat);
+
+fig_conv = figure;
+time_vec = (1:length(adapecg.emg1))/fs_emg;
+subplot(2,1,1);
+plot(time_vec, art_null); title('Artifact Est: Null Init Cond'); grid on; xlim([0 2]);
+subplot(2,1,2);
+plot(time_vec, art_smart); title('Artifact Est: Smart Init Cond (Avg Beat)'); grid on; xlim([0 2]);
+saveas(fig_conv, 'report/img/convergence_comparison.png');

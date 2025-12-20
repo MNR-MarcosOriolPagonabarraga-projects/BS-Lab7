@@ -1,0 +1,47 @@
+\subsection{Adaptive Filtering of Low-Effort EMG}
+
+\subsubsection{Reference Signal Generation}
+To apply the adaptive LMS filter for interference cancellation, a reference signal $x[n]$ is required that is correlated with the interference (the ECG artifact) but uncorrelated with the signal of interest (the EMG). 
+
+In this experiment, we construct a synthetic reference signal consisting of a train of impulses. Each impulse corresponds to the occurrence of a QRS complex in the EMG signal. The timing of these impulses is determined using the peak locations identified in the previous step. This reference input allows the LMS filter (which is essentially an FIR filter) to "learn" the shape of the average ECG beat as its impulse response, effectively reconstructing the interference to subtract it from the primary signal.
+
+Figure \ref{fig:emg1_with_impulses} displays the original low-effort EMG signal alongside the generated reference impulse train.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/emg1_with_impulses.png}
+    \caption{Low-effort EMG signal with generated reference impulses (red stems) indicating QRS locations.}
+    \label{fig:emg1_with_impulses}
+\end{figure}
+
+\subsubsection{LMS Filtering Results}
+The LMS algorithm was applied to the low-effort EMG signal using the generated impulse train as the reference. 
+A filter order of $N=600$ was chosen to sufficiently cover the duration of the ECG artifact (approx. 600 ms). 
+We evaluated the performance using three different step sizes (learning rates): $\mu = 0.001$, $\mu = 0.01$, and $\mu = 0.1$.
+
+The filtered signals (cleaned EMG) for each $\mu$ value are shown in Figure \ref{fig:lms_filtered_emg1}, while the 
+estimated interferences (the output of the adaptive filter) are shown in Figure \ref{fig:ecg_artifact_emg1}.
+
+\begin{lstlisting}[caption={Function for applying LMS filtering. It measures the }]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/lms_filtered_emg1_all_mu.png}
+    \caption{LMS filtered low-effort EMG signals for different step sizes $\mu$.}
+    \label{fig:lms_filtered_emg1}
+\end{figure}
+
+\textbf{Results and Discussion:}
+% TODO: Analyze the effect of different mu values on the filtered signal. 
+% Which mu provides the best cleanup? Is there any distortion or convergence issue?
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{img/ecg_artifact_emg1_all_mu.png}
+    \caption{Estimated ECG artifacts extracted by the LMS filter for different step sizes $\mu$.}
+    \label{fig:ecg_artifact_emg1}
+\end{figure}
+
+\textbf{Comments on Artifact Estimation:}
+% TODO: Discuss the shape of the estimated artifacts. Do they resemble the actual ECG template? 
+% How does mu affect the stability/shape of the estimated artifact?

@@ -1,0 +1,11 @@
+\section{filtering ECG Interference from EMG Signals}
+In this section, we address the challenge of removing ECG interference from EMG signals recorded 
+during different inspiratory efforts. The presence of ECG artifacts can significantly distort the 
+EMG signal, making it difficult to analyze muscle activity accurately. We will employ adaptive 
+filtering techniques to mitigate this interference, using a template derived from the low-effort 
+EMG signal as a reference.
+
+\input{sections/filtering_ecg_interference/load_data.tex}
+\input{sections/filtering_ecg_interference/generate_template.tex}
+\input{sections/filtering_ecg_interference/filtering_low_effort.tex}
+\input{sections/filtering_ecg_interference/filtering_high_effort.tex}
